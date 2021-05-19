@@ -1,5 +1,5 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import { DeployFunction } from 'hardhat-deploy/types';
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 require('dotenv').config()
 
@@ -14,6 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const GITHUB = "github";
   const PINATA = "pinata";
+  const LOCAL = "local";
   const metadata_location = process.env.METADATA_LOCATION; //  github, pinata
   const PREDEFINED_GITHUB_GIST_ID = process.env.PREDEFINED_GITHUB_GIST_ID;
 
@@ -87,6 +88,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         contractSymbol = contractconfig.symbol;
       }
       break;
+    case LOCAL:
+        {
+          baseMetadataUri =  "http://localhost:3001/meta/";
+          contractUri = "http://localhost:3001/contract";
+          contractName = "Hype ECO Local";
+          contractSymbol = "LOCSYM";
+        }
+        break;
   }
 
   console.log("------")

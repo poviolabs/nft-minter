@@ -8,10 +8,11 @@ const CONTRACT_INFO = require('../contracts.json');
 
 const INFURA_KEY = process.env.INFURA_API_KEY
 const MNEMONIC = process.env.MNEMONIC
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 const NETWORK = CONTRACT_INFO.name;
 const CONTRACT_ABI = CONTRACT_INFO.contracts.ERC1155Opensea.abi;
 const CONTRACT_ADDRESS = CONTRACT_INFO.contracts.ERC1155Opensea.address;
-const OWNER_ADDRESS = ethers.Wallet.fromMnemonic(MNEMONIC).address;
+const OWNER_ADDRESS = new ethers.Wallet(PRIVATE_KEY).address;
 
 
 let RPC_URL;

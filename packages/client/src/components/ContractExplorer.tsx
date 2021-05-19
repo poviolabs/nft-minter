@@ -1,12 +1,15 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { TabContent, TabPane, Nav, NavItem, NavLink, Card, 
-        Button, CardTitle, CardText, Row, Col, Form, FormGroup, Label, Input } from 'reactstrap';
 import classnames from 'classnames';
-
 import { ethers } from "ethers";
+import React, { Fragment, useEffect, useState } from 'react';
+import {
+  Button, Card,
+  Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink,
+  Row, TabContent, TabPane
+} from 'reactstrap';
 import config from '../config';
-
 import * as contractRoot from '../contracts.json';
+
+
 
 declare global {
   interface Window {
@@ -40,7 +43,7 @@ function ContractExplorer() {
     console.log(contractRoot);
 
     // initialize provider depending on network
-      Object.keys(contractRoot).map(network => {
+      Object.keys(contractRoot).map(async network => {
         let networkName = contractRoot[network].name;
         
         switch (networkName) {
@@ -50,6 +53,15 @@ function ContractExplorer() {
             setWeb3Provider(rinkebyProvider);
             setMetamaskProvider(metamaskProvider);
             setRefreshingContract(true);
+          break;
+          case "localhost":
+            let localProvider = new ethers.providers.JsonRpcProvider();
+            let metamaskProvider1 = new ethers.providers.Web3Provider(window.ethereum);
+            setWeb3Provider(localProvider);
+            setMetamaskProvider(metamaskProvider1);
+            setRefreshingContract(true);
+            const addr = await metamaskProvider1.send('eth_requestAccounts', []);
+            console.log(addr);
           break;
         }
         })
@@ -191,6 +203,38 @@ const handleCheckBalance = async (event) => {
   setInProgress(false);
 }
 
+const sendToken = async (event) => {
+  event.preventDefault(); 
+  setInProgress(true);
+  const form = event.target;
+  const data = new FormData(form);
+  let parsedData:any = {};
+  for (const [name,value] of data) {
+    parsedData[name] = value;
+  }
+
+  setLogText("Send " + parsedData["amountToSend"] + " tokens with id " + parsedData["tokenToSend"] +
+             " for address " + parsedData["userAddress"] + " to address " + parsedData["recieverAddress"] + "...");
+  setReceiptLink(null);
+
+  try {
+    
+    let result = await contract.safeTransferFrom(
+        parsedData["userAddress"], 
+        parsedData["recieverAddress"], 
+        parsedData["tokenToSend"],
+        parsedData["amountToSend"],
+        []
+      );
+      
+    setLogText("Balance of token id " + parsedData["tokenToCheck"] +
+    " for address " + parsedData["userAddress"] + ": " + result);
+
+  } catch (e) {}
+
+  setInProgress(false);
+}
+
 const handleGetMetadata = async (event) => {
   event.preventDefault(); 
   setInProgress(true);
@@ -205,11 +249,11 @@ const handleGetMetadata = async (event) => {
   setReceiptLink(null);
 
   try {
-
+    
     let result = await readOnlyContract.uri(parsedData["metadata"]);
-    let metadata = await (await fetch(result)).json();
+    // let metadata = await (await fetch(result)).json();
 
-    setLogText("uri: " + result + "--- " + "metadata: " + JSON.stringify(metadata));
+    setLogText("uri: " + result + "--- ");
 
   } catch (e) {}
 
@@ -354,6 +398,59 @@ const handleGetMetadata = async (event) => {
                 </Card>
 
                 <Card>
+                  <h5>Send token</h5>
+                  <Form onSubmit={sendToken}>
+                    <FormGroup>
+                    <Row>
+                    <Col>
+                      <Label for="userAddressId">User Address</Label>
+                    </Col>
+                    <Col>
+                      <Input
+                      name="userAddress"
+                      id="userAddressId"
+                      placeholder="0x..."
+                    />
+                    </Col>
+                    <Col>
+                      <Label for="recieverAddressId">Reciever Address</Label>
+                    </Col>
+                    <Col>
+                      <Input
+                      name="recieverAddress"
+                      id="recieverAddressId"
+                      placeholder="0x..."
+                    />
+                    </Col>
+                    <Col>
+                      <Label for="tokenToCheckId">Token Id</Label>
+                    </Col>
+                    <Col>
+                      <Input
+                        type="number"
+                      name="tokenToSend"
+                      id="tokenToCheckId"
+                      placeholder="0"
+                    />
+                    </Col>
+                    <Col>
+                      <Label for="amountToSendId">Amount</Label>
+                    </Col>
+                    <Col>
+                      <Input
+                        type="number"
+                      name="amountToSend"
+                      id="amountToSendId"
+                      placeholder="0"
+                    />
+                    </Col>
+                    <Col><Button disabled={inProgress}>Sent token</Button></Col>
+                    </Row>
+                    </FormGroup>
+                  </Form>
+                </Card>
+
+                <Card>
                   <h5>Get Token Metadata</h5>
                   <Form onSubmit={handleGetMetadata}>
                     <FormGroup>
@@ -396,4 +493,4 @@ const handleGetMetadata = async (event) => {
   );
 }
 
-export {ContractExplorer};
+export { ContractExplorer };

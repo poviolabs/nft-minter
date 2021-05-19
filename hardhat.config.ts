@@ -26,7 +26,9 @@ const config: HardhatUserConfig = {
     deployer: 0,
   },
   networks: {
-    hardhat: {},
+    hardhat: { 
+      chainId: 1337
+    },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts

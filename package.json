@@ -40,6 +40,7 @@
     "contract:prepare:localhost": "npm run contract:clean && npm run hardhat:deploy && npm run seed:localhost",
     "contract:prepare:rinkeby": "npm run contract:clean && npm run hardhat:deploy:rinkeby && npm run seed:rinkeby",
     "hardhat:deploy:rinkeby": "hardhat deploy --export packages/client/src/contracts.json --network rinkeby",
+    "hardhat:deploy:local": "hardhat deploy --export packages/client/src/contracts.json --network localhost",
     "contract:verify": "hardhat etherscan-verify --network rinkeby --license None",
     "contract:mint": "node scripts/mint.js",
     "demo": "yarn metadata:deploy && yarn contract:deploy && yarn contract:verify && yarn:build && yarn:serve",
